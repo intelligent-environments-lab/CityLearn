@@ -2,6 +2,39 @@
 CityLearn
 =========
 
+CityLearn is an open-source Gymnasium environment for building energy coordination,
+demand response and reinforcement learning :cite:p:`https://doi.org/10.48550/arxiv.2012.10504, 10.1145/3360322.3360998, doi:10.1080/19401493.2024.2418813`.
+It provides a common environment in which controllers can be tested using the
+same scenarios, interfaces and performance indicators.
+
+CityLearn v3 extends this foundation to configurable renewable energy communities:
+buildings, PV, batteries, EVs and flexible loads can be studied with service
+deadlines, electrical limits, local settlement, changing members and assets,
+and data or equipment failures. It incorporates the extensions developed by
+the Soft-CPS Research Group alongside the project's building and thermal models.
+
+Start here
+**********
+
+* :doc:`installation`: install the package and optional dependencies.
+* :doc:`quickstart`: run your first complete simulation.
+* :doc:`guides/features`: choose and configure available features.
+* :doc:`guides/scorecard`: interpret costs, energy and service together.
+
+.. figure:: ../../assets/images/citylearn-v3-overview.png
+   :width: 680px
+   :class: citylearn-overview
+   :alt: Configurable CityLearn communities with controllers, buildings, PV, storage, EVs, electrical limits, demand response and KPIs.
+   :align: center
+   :target: _images/citylearn-v3-overview.png
+
+   Community configurations and services in CityLearn v3. Individual scenarios
+   can use different time resolutions; synchronized multi-community runs use
+   a common timestep.
+
+Community and sustainability
+****************************
+
 .. panels::
    :column: col-lg-12 p-2
 
@@ -22,41 +55,90 @@ CityLearn
       :scale: 8 %
       :target: https://sdgs.un.org/goals/goal13
 
-CityLearn is an open source Farama Foundation Gymnasium environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities :cite:p:`https://doi.org/10.48550/arxiv.2012.10504, 10.1145/3360322.3360998, doi:10.1080/19401493.2024.2418813`. A major challenge for RL in demand response is the ability to compare algorithm performance :cite:p:`VAZQUEZCANTELI20191072`. Thus, CityLearn facilitates and standardizes the evaluation of RL agents such that different algorithms can be easily compared with each other.
-
-.. image:: ../../assets/images/dr.jpg
-   :scale: 30 %
-   :alt: demand response
-   :align: center
-
-Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. CityLearn allows the easy implementation of reinforcement learning agents in a single or multi-agent setting to reshape their aggregated curve of electrical demand by controlling active energy storage for load shifting and heat pump or electric heater power for load shedding.
-
 Applications
 ************
 
 CityLearn has been utilized in the following projects and publications:
-
-.. csv-table::
-   :file: ../../assets/tables/citylearn_applications.csv
-   :header-rows: 1
+see :doc:`publications` for studies grouped by application, and :doc:`references`
+for the bibliography.
 
 .. toctree::
    :hidden:
+   :maxdepth: 2
+   :caption: Getting started
    
    installation
    quickstart
+   guides/features
+   guides/migration
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Configure and run
+
+   guides/running_simulations
+   guides/schema_reference
+   guides/dataset_reference
+   guides/data_unit_contract
+   guides/interfaces_flat_entity
+   guides/observations_reference
+   guides/actions_reference
+   guides/multi_community_reference
+   guides/robustness_reference
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Evaluate
+
+   guides/baselines
+   kpis
+   guides/scorecard
+   guides/scorecard_kpi_names
+   guides/kpis_reference
+   guides/KPI_V2_TREE
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Visualize
+
+   ui
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Concepts and tutorials
+
    overview/index
    usage/index
    cli
-   ui
-   kpis
-   api/modules
+   Python API <api/modules>
    citylearn_challenge/index
-   contributing
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Project
+
+   publications
    references
+   contributing
+   guides/developer_guide
+   guides/publishing
+   guides/releases
+
+.. _cite-citylearn:
 
 Cite CityLearn
 **************
+
+The following publications describe CityLearn v2 and v3. Cite the work relevant
+to the version and features used in your study.
+
+CityLearn v2
+------------
 
 .. code-block:: bibtex
 
@@ -72,6 +154,18 @@ Cite CityLearn
       doi = {10.1080/19401493.2024.2418813},
       url = {https://doi.org/10.1080/19401493.2024.2418813},
    }
+
+CityLearn v3
+------------
+
+The v3 paper is available as an
+`arXiv preprint <https://arxiv.org/abs/2609.21570>`_
+:cite:p:`fonseca2026citylearnv3`.
+
+.. literalinclude:: references.bib
+   :language: bibtex
+   :start-at: @misc{fonseca2026citylearnv3,
+   :end-before: @misc{https://doi.org/10.48550/arxiv.2012.10504,
 
 
 Indices and tables

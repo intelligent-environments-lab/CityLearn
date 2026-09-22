@@ -13,6 +13,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+      <link rel="stylesheet" type="text/css" href="../_static/citylearn.css?v=867a8231" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
@@ -23,13 +24,11 @@
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Agents" href="agents.html" />
-    <link rel="prev" title="Entity v1 Contract" href="entity_v1_contract.html" /> 
+    <link rel="next" title="Dataset" href="dataset.html" />
+    <link rel="prev" title="Agents" href="agents.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,33 +50,69 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Your first simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/features.html">Features and configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/migration.html">Moving an existing project to CityLearn v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configure and run</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/running_simulations.html">Running Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/schema_reference.html">Schema Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/dataset_reference.html">Dataset Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/data_unit_contract.html">Data Unit Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/interfaces_flat_entity.html">Flat and Entity Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/observations_reference.html">Observations Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/actions_reference.html">Actions Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/multi_community_reference.html">Multi-Community Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/robustness_reference.html">Robustness Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Evaluate</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/baselines.html">Baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/scorecard.html">How to read the scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/scorecard_kpi_names.html">Default scorecard KPI names</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/kpis_reference.html">KPIs Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/KPI_V2_TREE.html">KPI v2 Naming Tree</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Visualize</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts and tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core concepts</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="environment.html">Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="observations.html">Observations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="actions.html">Actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Agents</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Reward Function</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-point-to-the-reward-function">How to Point to the Reward Function</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-define-a-custom-reward-function">How to Define a Custom Reward Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-a-reward">Choose a reward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-a-custom-reward">Define a custom reward</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="agents.html">Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataset.html">Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="schema.html">Schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cost_function.html">Cost Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Examples and tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications and applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/publishing.html">Publishing Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/releases.html">Releases</a></li>
 </ul>
 
         </div>
@@ -94,10 +129,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Overview</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Core concepts</a></li>
       <li class="breadcrumb-item active">Reward Function</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/overview/reward_function.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/citylearn-project/CityLearn/blob/master/docs/source/overview/reward_function.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -107,75 +142,39 @@
              
   <section id="reward-function">
 <h1>Reward Function<a class="headerlink" href="#reward-function" title="Link to this heading"></a></h1>
-<p>A reward is calculated and returned each time <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step" title="citylearn.citylearn.CityLearnEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.step()</span></code></a> is called. The reward time series is also accessible through the <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.rewards" title="citylearn.citylearn.CityLearnEnv.rewards"><code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.rewards</span></code></a> property.</p>
-<p>CityLearn provides custom reward functions:</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Class</p></th>
-<th class="head"><p>Equation</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p></td>
-<td><div class="math notranslate nohighlight">
-\[min(-e, 0)\]</div>
-</td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.MARL" title="citylearn.reward_function.MARL"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.MARL</span></code></a></p></td>
-<td><div class="math notranslate nohighlight">
-\[\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)\]</div>
-</td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward" title="citylearn.reward_function.IndependentSACReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.IndependentSACReward</span></code></a></p></td>
-<td><div class="math notranslate nohighlight">
-\[min(-e^3, 0)\]</div>
-</td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward" title="citylearn.reward_function.SolarPenaltyReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.SolarPenaltyReward</span></code></a></p></td>
-<td><div class="math notranslate nohighlight">
-\[\sum_{i=0}^n - \Big( \Big(1 + \frac{e}{|e|} \times \textrm{storage}_{i}^{\textrm{SoC}} \Big) \times |e| \Big)\]</div>
-</td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward" title="citylearn.reward_function.ComfortReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.ComfortReward</span></code></a></p></td>
-<td><div class="math notranslate nohighlight">
-\[\begin{split}\begin{cases}
-  -|T_{in} - T_{spt}|^3, \quad \textrm{if} \ T_{in} &lt; (T_{spt} - T_{b}) \ \textrm{and cooling} \\
-  -|T_{in} - T_{spt}|^2, \quad \textrm{if} \ T_{in} &lt; (T_{spt} - T_{b}) \ \textrm{and heating} \\
-  -|T_{in} - T_{spt}|, \quad \textrm{if} \ (T_{spt} - T_{b}) \le T_{in} &lt; T_{spt} \ \textrm{and cooling} \\
-  0, \quad \textrm{if} \ (T_{spt} - T_{b}) \le T_{in} &lt; T_{spt} \ \textrm{and heating} \\
-  0, \quad \textrm{if} \ T_{spt} \le T_{in} \le (T_{spt} + T_{b}) \ \textrm{and cooling} \\
-  -|T_{in} - T_{spt}|, \ \textrm{if} \: T_{spt} \le T_{in} \le (T_{spt} + T_{b}) \ \textrm{and heating} \\
-  -|T_{in} - T_{spt}|^2, \quad \textrm{if} \ (T_{spt} + T_{b}) &lt; T_{in} \ \textrm{and cooling} \\
-  -|T_{in} - T_{spt}|^3, \quad \textrm{otherwise}
-\end{cases}\end{split}\]</div>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Where <span class="math notranslate nohighlight">\(e\)</span> is a building’s net electricity consumption, <span class="math notranslate nohighlight">\(T_{in}\)</span> is a building’s indoor dry-bulb temperature, <span class="math notranslate nohighlight">\(T_{spt}\)</span> is a building’s indoor dry-bulb temperature setpoint, <span class="math notranslate nohighlight">\(T_{b}\)</span> is a building’s indoor dry-bulb temperature setpoint comfort band while <span class="math notranslate nohighlight">\(E\)</span> is the district’s net electricity consumption. These rewards are defined for a decentralized single building application and for a centralized agent controlling all buildings, the reward will be the sum of the decentralized values.</p>
-<section id="how-to-point-to-the-reward-function">
-<h2>How to Point to the Reward Function<a class="headerlink" href="#how-to-point-to-the-reward-function" title="Link to this heading"></a></h2>
-<p>The reward function to use in a simulation is defined in the <code class="code docutils literal notranslate"><span class="pre">reward_function</span></code> key-value of the schema:</p>
+<p>A reward is returned at every <code class="docutils literal notranslate"><span class="pre">step()</span></code>. It defines the learning signal,
+whereas <a class="reference internal" href="../kpis.html"><span class="doc">KPIs</span></a> assess the completed episode. A reward and a reported
+KPI do not have to be the same quantity.</p>
+<p>The default <a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a> penalizes
+positive grid imports. Other supplied rewards cover objectives such as thermal
+comfort and EV charging. See <a class="reference internal" href="../api/citylearn.reward_function.html#module-citylearn.reward_function" title="citylearn.reward_function"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.reward_function</span></code></a> for constructors
+and formulas.</p>
+<section id="choose-a-reward">
+<h2>Choose a reward<a class="headerlink" href="#choose-a-reward" title="Link to this heading"></a></h2>
+<p>Pass the reward class through <code class="docutils literal notranslate"><span class="pre">CityLearnEnv(reward_function=...)</span></code> or select an
+importable class in the schema:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="err">...</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">"reward_function"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citylearn.reward_function.RewardFunction"</span><span class="p">,</span>
-<span class="w">      </span><span class="err">...</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="err">...</span>
+<span class="w">  </span><span class="nt">"reward_function"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citylearn.reward_function.RewardFunction"</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>This is the reward section of a schema, not a complete dataset definition.</p>
 </section>
-<section id="how-to-define-a-custom-reward-function">
-<h2>How to Define a Custom Reward Function<a class="headerlink" href="#how-to-define-a-custom-reward-function" title="Link to this heading"></a></h2>
-<p>CityLearn also allows for custom reward functions by inheriting the base <a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a>:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Union</span>
+<section id="define-a-custom-reward">
+<h2>Define a custom reward<a class="headerlink" href="#define-a-custom-reward" title="Link to this heading"></a></h2>
+<p>Subclass <code class="docutils literal notranslate"><span class="pre">RewardFunction</span></code> and implement <code class="docutils literal notranslate"><span class="pre">calculate(observations)</span></code>.
+Return one reward per building for decentralized control, or one aggregate
+reward for centralized control. The inherited <code class="docutils literal notranslate"><span class="pre">central_agent</span></code> property
+exposes the environment setting.</p>
+<p>The existing emissions-based example is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.reward_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">RewardFunction</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Calculates custom user-defined multi-agent reward.</span>
-
+<span class="sd">        </span>
 <span class="sd">    Reward is the :py:attr:`net_electricity_consumption_emission`</span>
 <span class="sd">    for entire district if central agent setup otherwise it is the</span>
 <span class="sd">    :py:attr:`net_electricity_consumption_emission` each building.</span>
@@ -185,10 +184,10 @@
 <span class="sd">    env_metadata: Mapping[str, Any]:</span>
 <span class="sd">        General static information about the environment.</span>
 <span class="sd">    """</span>
-
+    
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
-
+ 
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""Calculates reward.</span>
 
@@ -213,17 +212,9 @@
         <span class="k">return</span> <span class="n">reward</span>
 </pre></div>
 </div>
-<p>The schema must then be updated to reference the custom reward function:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="err">...</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">"reward_function"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"custom_module.CustomReward"</span><span class="p">,</span>
-<span class="w">      </span><span class="err">...</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="err">...</span>
-<span class="p">}</span>
-</pre></div>
-</div>
+<p>A reward can declare <code class="docutils literal notranslate"><span class="pre">required_observation_names</span></code> to receive a smaller
+observation payload. The <a class="reference internal" href="../usage/custom_controller.html"><span class="doc">Custom agents and rewards</span></a> tutorial demonstrates
+this together with a complete simulation.</p>
 </section>
 </section>
 
@@ -231,8 +222,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="entity_v1_contract.html" class="btn btn-neutral float-left" title="Entity v1 Contract" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="agents.html" class="btn btn-neutral float-right" title="Agents" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="agents.html" class="btn btn-neutral float-left" title="Agents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dataset.html" class="btn btn-neutral float-right" title="Dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

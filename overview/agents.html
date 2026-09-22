@@ -13,6 +13,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+      <link rel="stylesheet" type="text/css" href="../_static/citylearn.css?v=867a8231" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
@@ -26,8 +27,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Dataset" href="dataset.html" />
-    <link rel="prev" title="Reward Function" href="reward_function.html" /> 
+    <link rel="next" title="Reward Function" href="reward_function.html" />
+    <link rel="prev" title="Actions" href="actions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,29 +50,69 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Your first simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/features.html">Features and configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/migration.html">Moving an existing project to CityLearn v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configure and run</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/running_simulations.html">Running Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/schema_reference.html">Schema Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/dataset_reference.html">Dataset Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/data_unit_contract.html">Data Unit Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/interfaces_flat_entity.html">Flat and Entity Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/observations_reference.html">Observations Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/actions_reference.html">Actions Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/multi_community_reference.html">Multi-Community Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/robustness_reference.html">Robustness Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Evaluate</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/baselines.html">Baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/scorecard.html">How to read the scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/scorecard_kpi_names.html">Default scorecard KPI names</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/kpis_reference.html">KPIs Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/KPI_V2_TREE.html">KPI v2 Naming Tree</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Visualize</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts and tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core concepts</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="environment.html">Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="observations.html">Observations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="actions.html">Actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#controller-choices">Controller choices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-your-own">Create your own</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="reward_function.html">Reward Function</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataset.html">Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="schema.html">Schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cost_function.html">Cost Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Examples and tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications and applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/publishing.html">Publishing Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/releases.html">Releases</a></li>
 </ul>
 
         </div>
@@ -88,10 +129,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Overview</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Core concepts</a></li>
       <li class="breadcrumb-item active">Agents</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/overview/agents.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/citylearn-project/CityLearn/blob/master/docs/source/overview/agents.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -101,46 +142,42 @@
              
   <section id="agents">
 <h1>Agents<a class="headerlink" href="#agents" title="Link to this heading"></a></h1>
-<p>CityLearn supports centralized, decentralized-independent and decentralized-coordinated control architectures. In the centralized architecture, 1 agent controls all storage, cooling and heating devices i.e. provides as many actions as storage, cooling and heating devices in the district. In the decentralized-independent architecture, each building has it’s own unique agent and building agents do not share information i.e. each agent acts in isolation and provides as many actions as storage, cooling and heating devices in the building it controls. The decentralized-coordinated architecture is similar to the decentralized-independent architecture with the exception of information sharing amongst agents.</p>
-<p>CityLearn provides implementations of rule-based control (RBC) and reinforcement learning control (RLC) algorithms. The rule-based control algorithms are in the <a class="reference internal" href="../api/citylearn.agents.rbc.html#module-citylearn.agents.rbc" title="citylearn.agents.rbc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.rbc</span></code></a> module, while there are two reinforcement learning modules: <a class="reference internal" href="../api/citylearn.agents.sac.html#module-citylearn.agents.sac" title="citylearn.agents.sac"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.sac</span></code></a> and <a class="reference internal" href="../api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa" title="citylearn.agents.marlisa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.marlisa</span></code></a>. The table below summarizes which control architectures the control algorithms support:</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Agents</p></th>
-<th class="head"><p>Control Algorithm</p></th>
-<th class="head"><p>Centralized</p></th>
-<th class="head"><p>Independent</p></th>
-<th class="head"><p>Coordinated</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../api/citylearn.agents.rbc.html#module-citylearn.agents.rbc" title="citylearn.agents.rbc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.rbc</span></code></a></p></td>
-<td><p>RBC</p></td>
-<td><p>✔️</p></td>
-<td><p>✔️</p></td>
-<td><p>❌</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api/citylearn.agents.sac.html#module-citylearn.agents.sac" title="citylearn.agents.sac"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.sac</span></code></a></p></td>
-<td><p>RLC</p></td>
-<td><p>✔️</p></td>
-<td><p>✔️</p></td>
-<td><p>❌</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa" title="citylearn.agents.marlisa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.marlisa</span></code></a></p></td>
-<td><p>RLC</p></td>
-<td><p>❌</p></td>
-<td><p>✔️</p></td>
-<td><p>✔️</p></td>
-</tr>
-</tbody>
-</table>
+<p>An agent maps observations to actions. In flat mode with <code class="docutils literal notranslate"><span class="pre">central_agent=True</span></code>,
+one action vector covers the community. In decentralized flat mode, the environment uses
+one vector per building. Whether those decisions share information depends on
+the controller, not just the number of vectors.</p>
+<section id="controller-choices">
+<h2>Controller choices<a class="headerlink" href="#controller-choices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/citylearn.agents.baseline.html#citylearn.agents.baseline.BusinessAsUsualAgent" title="citylearn.agents.baseline.BusinessAsUsualAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.baseline.BusinessAsUsualAgent</span></code></a>: the operational
+reference described in <a class="reference internal" href="../guides/baselines.html"><span class="doc">Baselines</span></a>.</p></li>
+<li><p><a class="reference internal" href="../api/citylearn.agents.rbc.html#module-citylearn.agents.rbc" title="citylearn.agents.rbc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.rbc</span></code></a>: rule-based controllers.</p></li>
+<li><p><a class="reference internal" href="../api/citylearn.agents.q_learning.html#module-citylearn.agents.q_learning" title="citylearn.agents.q_learning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.q_learning</span></code></a>: tabular Q-learning.</p></li>
+<li><p><a class="reference internal" href="../api/citylearn.agents.sac.html#module-citylearn.agents.sac" title="citylearn.agents.sac"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.sac</span></code></a>: Soft Actor-Critic.</p></li>
+<li><p><a class="reference internal" href="../api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa" title="citylearn.agents.marlisa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.marlisa</span></code></a>: coordinated multi-agent learning.</p></li>
+<li><p>A custom agent or an external learning library using a compatible wrapper.</p></li>
+</ul>
+<p>The classic RL agents/wrappers use flat spaces. Entity-mode controllers consume
+tables, masks and edges and must handle the active population and action
+contract. The native BAU accepts both interfaces through its flat action path.</p>
+</section>
+<section id="create-your-own">
+<h2>Create your own<a class="headerlink" href="#create-your-own" title="Link to this heading"></a></h2>
+<p>Start with <a class="reference internal" href="../usage/custom_controller.html"><span class="doc">Custom agents and rewards</span></a>: a complete agent/reward example
+with the correct reset/step loop. For the base lifecycle, see
+<a class="reference internal" href="../api/citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.base.Agent</span></code></a>.</p>
+<p>Use <a class="reference internal" href="../usage/agents.html"><span class="doc">Controller examples</span></a> for learning-agent notebooks. Select the reward
+separately from the controller and evaluate final results using
+<a class="reference internal" href="../kpis.html"><span class="doc">KPIs</span></a>.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="reward_function.html" class="btn btn-neutral float-left" title="Reward Function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="dataset.html" class="btn btn-neutral float-right" title="Dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="actions.html" class="btn btn-neutral float-left" title="Actions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reward_function.html" class="btn btn-neutral float-right" title="Reward Function" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

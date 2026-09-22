@@ -13,6 +13,7 @@
       <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.min.css?v=21c0b90a" />
+      <link rel="stylesheet" type="text/css" href="_static/citylearn.css?v=867a8231" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -26,7 +27,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="QuickStart" href="quickstart.html" />
+    <link rel="next" title="Your first simulation" href="quickstart.html" />
     <link rel="prev" title="CityLearn" href="index.html" /> 
 </head>
 
@@ -49,18 +50,59 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">QuickStart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ui.html">CityLearn UI</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#optional-dependencies">Optional dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#existing-projects-and-development">Existing projects and development</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Your first simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/features.html">Features and configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/migration.html">Moving an existing project to CityLearn v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configure and run</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guides/running_simulations.html">Running Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/schema_reference.html">Schema Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/dataset_reference.html">Dataset Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/data_unit_contract.html">Data Unit Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/interfaces_flat_entity.html">Flat and Entity Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/observations_reference.html">Observations Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/actions_reference.html">Actions Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/multi_community_reference.html">Multi-Community Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/robustness_reference.html">Robustness Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Evaluate</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guides/baselines.html">Baselines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kpis.html">KPIs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/scorecard.html">How to read the scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/scorecard_kpi_names.html">Default scorecard KPI names</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/kpis_reference.html">KPIs Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/KPI_V2_TREE.html">KPI v2 Naming Tree</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Visualize</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">CityLearn UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts and tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Core concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/index.html">Examples and tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="publications.html">Publications and applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/publishing.html">Publishing Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/releases.html">Releases</a></li>
 </ul>
 
         </div>
@@ -79,7 +121,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/installation.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/citylearn-project/CityLearn/blob/master/docs/source/installation.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -89,25 +131,55 @@
              
   <section id="installation">
 <span id="installation-page"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
-<p>Install the latest CityLearn version from PyPi with the <code class="code docutils literal notranslate"><span class="pre">pip</span></code> command:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install CityLearn</span>
+<p>CityLearn v3 is distributed as <code class="docutils literal notranslate"><span class="pre">citylearn</span></code> on PyPI and requires Python 3.9 or
+newer. Use a virtual environment to keep its dependencies separate.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python -m venv .venv</span>
 </pre></div>
 </div>
-<p>Alternatively, install a specific version:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install CityLearn==2.0.0</span>
+<p>Activate it on Linux or macOS:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">source .venv/bin/activate</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Version <code class="docutils literal notranslate"><span class="pre">1.8.0</span></code> and earlier do not support temperature dynamic buildings class <a class="reference internal" href="api/citylearn.building.html#citylearn.building.DynamicsBuilding" title="citylearn.building.DynamicsBuilding"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.DynamicsBuilding</span></code></a> and its descendant classes. Thus, <cite>cooling_device</cite> and <cite>heating_device</cite> control for partial load is not supported by these versions.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Version <code class="docutils literal notranslate"><span class="pre">1.1.0</span></code> and earlier are not installable via <code class="code docutils literal notranslate"><span class="pre">pip</span></code>. Instead, clone earlier versions like:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>v1.1.0<span class="w"> </span>https://github.com/intelligent-environments-lab/CityLearn.git
+<p>On Windows PowerShell:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="n">venv</span><span class="p">\</span><span class="n">Scripts</span><span class="p">\</span><span class="n">Activate</span><span class="p">.</span><span class="n">ps1</span>
 </pre></div>
 </div>
+<p>Install and check the package:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python -m pip install --upgrade pip</span>
+<span class="go">python -m pip install citylearn</span>
+<span class="go">python -c "from citylearn import __version__; print(__version__)"</span>
+</pre></div>
 </div>
+<p>Continue with <a class="reference internal" href="quickstart.html"><span class="doc">Your first simulation</span></a>. Both the package and Python import name are
+<code class="docutils literal notranslate"><span class="pre">citylearn</span></code>.</p>
+<section id="optional-dependencies">
+<h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Link to this heading"></a></h2>
+<p>For Parquet datasets or exports:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python -m pip install "citylearn[parquet]"</span>
+</pre></div>
+</div>
+<p>For PV autosizing from EPW weather using PySAM:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python -m pip install "citylearn[pysam]"</span>
+</pre></div>
+</div>
+</section>
+<section id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Link to this heading"></a></h2>
+<p>Public datasets are downloaded from the official repository and cached locally.
+The first download needs internet access. List the available names in Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSet</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset_names</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>For your own data, pass a local <code class="docutils literal notranslate"><span class="pre">schema.json</span></code> path instead of a dataset name.
+See <a class="reference internal" href="guides/dataset_reference.html"><span class="doc">Dataset Reference</span></a> for files, units and offline use.</p>
+</section>
+<section id="existing-projects-and-development">
+<h2>Existing projects and development<a class="headerlink" href="#existing-projects-and-development" title="Link to this heading"></a></h2>
+<p>Record the installed version with the command above and pin that version
+in your project dependencies. Read <a class="reference internal" href="guides/migration.html"><span class="doc">Moving an existing project to CityLearn v3</span></a> when updating a project.
+To work on CityLearn itself, follow <a class="reference internal" href="guides/developer_guide.html"><span class="doc">Developer Guide</span></a>.</p>
+</section>
 </section>
 
 
@@ -115,7 +187,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="CityLearn" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="quickstart.html" class="btn btn-neutral float-right" title="QuickStart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Your first simulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

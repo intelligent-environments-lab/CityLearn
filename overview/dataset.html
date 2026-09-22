@@ -13,6 +13,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+      <link rel="stylesheet" type="text/css" href="../_static/citylearn.css?v=867a8231" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
@@ -27,7 +28,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Schema" href="schema.html" />
-    <link rel="prev" title="Agents" href="agents.html" /> 
+    <link rel="prev" title="Reward Function" href="reward_function.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,16 +50,46 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Your first simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/features.html">Features and configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/migration.html">Moving an existing project to CityLearn v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configure and run</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/running_simulations.html">Running Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/schema_reference.html">Schema Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/dataset_reference.html">Dataset Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/data_unit_contract.html">Data Unit Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/interfaces_flat_entity.html">Flat and Entity Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/observations_reference.html">Observations Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/actions_reference.html">Actions Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/multi_community_reference.html">Multi-Community Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/robustness_reference.html">Robustness Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Evaluate</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/baselines.html">Baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/scorecard.html">How to read the scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/scorecard_kpi_names.html">Default scorecard KPI names</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/kpis_reference.html">KPIs Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/KPI_V2_TREE.html">KPI v2 Naming Tree</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Visualize</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts and tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core concepts</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="environment.html">Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="observations.html">Observations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="actions.html">Actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reward_function.html">Reward Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reward_function.html">Reward Function</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Dataset</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#data-files">Data Files</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#building-data-file">Building Data File</a></li>
@@ -73,16 +104,22 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="schema.html">Schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cost_function.html">Cost Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Examples and tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications and applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/publishing.html">Publishing Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/releases.html">Releases</a></li>
 </ul>
 
         </div>
@@ -99,10 +136,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Overview</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Core concepts</a></li>
       <li class="breadcrumb-item active">Dataset</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/overview/dataset.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/citylearn-project/CityLearn/blob/master/docs/source/overview/dataset.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -112,10 +149,20 @@
              
   <section id="dataset">
 <span id="dataset-page"></span><h1>Dataset<a class="headerlink" href="#dataset" title="Link to this heading"></a></h1>
-<p>CityLearn makes use of datasets that are a collection of data files. The data files are used to define the simulation environment as well as provide some observation values. See <a class="reference internal" href="#dataset-data-files-section"><span class="std std-ref">Data Files</span></a> for more information.</p>
+<p>A CityLearn dataset combines a JSON schema with the time series and optional
+models needed by a scenario. Load a public dataset by name, a local schema path
+or an in-memory schema dictionary; see <a class="reference internal" href="../usage/load_environment.html"><span class="doc">How to Load an Environment</span></a>.</p>
+<p>V3 supports CSV and Parquet time series with the same column contract. The CSV
+snippets below illustrate the main inputs; <a class="reference internal" href="../guides/dataset_reference.html"><span class="doc">Dataset Reference</span></a>
+also covers EV schedules, flexible-appliance cycles, topology events and
+demand-response requests. Match the timestep and energy units to
+<a class="reference internal" href="../guides/data_unit_contract.html"><span class="doc">Data Unit Contract</span></a>.</p>
 <section id="data-files">
 <span id="dataset-data-files-section"></span><h2>Data Files<a class="headerlink" href="#data-files" title="Link to this heading"></a></h2>
-<p>The data files refer to flat files containing time series data that are used to set observations that are agent action agnostic (i.e. observations that are not a function of the control actions). These files are referenced in the environment <code class="code docutils literal notranslate"><span class="pre">schema.json</span></code> and read when <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> is initialized. The data files are desrcribes as follows:</p>
+<p>The schema references the input files read when
+<a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> is initialized. They provide exogenous
+inputs such as demand, weather and prices; device states and action-dependent
+outputs are computed during the simulation.</p>
 <section id="building-data-file">
 <h3>Building Data File<a class="headerlink" href="#building-data-file" title="Link to this heading"></a></h3>
 <p>The building file is a <code class="code docutils literal notranslate"><span class="pre">csv</span></code> file that contains a building’s temporal (calendar), end-use loads, occupancy, solar generation and indoor environment variables time series data. There are as many building files as buildings in the environment. The end-use loads, occupancy, solar generation and indoor environment data may come from simulation in energy modeling software e.g., <a class="reference external" href="https://energyplus.net">EnergyPlus</a> or from smart meter or from a Building Automation System (BAS). The file structure is shown in the snippet below:</p>
@@ -171,10 +218,8 @@
 <section id="schema-data-file">
 <h3>Schema Data File<a class="headerlink" href="#schema-data-file" title="Link to this heading"></a></h3>
 <p>The schema file is a <code class="code docutils literal notranslate"><span class="pre">.json</span></code> file that references all other data files and is used to define the simulation environment. Refer to <a class="reference internal" href="schema.html#schema-page"><span class="std std-ref">Schema</span></a> for more information.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>If using version <code class="docutils literal notranslate"><span class="pre">2.1.2</span></code> or earlier, do not change the order of columns in any of the <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> data files!</p>
-</div>
+<p>Use the column names documented in <a class="reference internal" href="../guides/dataset_reference.html"><span class="doc">Dataset Reference</span></a> and ensure
+all time-series inputs cover the requested simulation interval.</p>
 </section>
 </section>
 </section>
@@ -183,7 +228,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="agents.html" class="btn btn-neutral float-left" title="Agents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reward_function.html" class="btn btn-neutral float-left" title="Reward Function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="schema.html" class="btn btn-neutral float-right" title="Schema" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

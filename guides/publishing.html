@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Publishing Guide &mdash; CityLearn 3.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+      <link rel="stylesheet" type="text/css" href="../_static/citylearn.css?v=867a8231" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=3f474186"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Releases" href="releases.html" />
+    <link rel="prev" title="Developer Guide" href="developer_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Your first simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features and configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Moving an existing project to CityLearn v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configure and run</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="running_simulations.html">Running Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema_reference.html">Schema Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset_reference.html">Dataset Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_unit_contract.html">Data Unit Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces_flat_entity.html">Flat and Entity Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="observations_reference.html">Observations Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actions_reference.html">Actions Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multi_community_reference.html">Multi-Community Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="robustness_reference.html">Robustness Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Evaluate</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kpis.html">KPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">How to read the scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard_kpi_names.html">Default scorecard KPI names</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kpis_reference.html">KPIs Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KPI_V2_TREE.html">KPI v2 Naming Tree</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Visualize</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ui.html">CityLearn UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts and tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Core concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Examples and tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications and applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Publishing Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#release-owner">Release Owner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-bump">Version Bump</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pypi-workflow">PyPI Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#local-build-check">Local Build Check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-discipline">Release Discipline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-note-checklist-and-template">Release-note checklist and template</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-policy">Version policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-checklist">Release checklist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#template">Template</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releases.html">Releases</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Publishing Guide</li>
+      <li class="wy-breadcrumbs-aside">
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/citylearn-project/CityLearn/blob/master/docs/publishing.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="publishing-guide">
+<h1>Publishing Guide<a class="headerlink" href="#publishing-guide" title="Link to this heading"></a></h1>
+<p>CityLearn is published on PyPI as <code class="docutils literal notranslate"><span class="pre">citylearn</span></code> and imports as <code class="docutils literal notranslate"><span class="pre">citylearn</span></code>.</p>
+<section id="release-owner">
+<h2>Release Owner<a class="headerlink" href="#release-owner" title="Link to this heading"></a></h2>
+<p>Default release owner: <a class="reference external" href="https://github.com/calofonseca">&#64;calofonseca</a>.</p>
+</section>
+<section id="version-bump">
+<h2>Version Bump<a class="headerlink" href="#version-bump" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">citylearn/__init__.py</span></code>.</p></li>
+<li><p>Update <a class="reference internal" href="releases.html"><span class="std std-doc">releases.md</span></a>.</p></li>
+<li><p>Update affected reference pages when schema, actions, observations, KPIs or dataset contracts change.</p></li>
+<li><p>Run validation from <a class="reference internal" href="developer_guide.html"><span class="std std-doc">developer_guide.md</span></a>.</p></li>
+<li><p>Commit and tag.</p></li>
+</ol>
+<p>Example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git add citylearn/__init__.py README.md docs</span>
+<span class="go">git commit -m "Release v0.4.3"</span>
+<span class="go">git tag -a v0.4.3 -m "Release v0.4.3"</span>
+<span class="go">git push --follow-tags origin master</span>
+</pre></div>
+</div>
+</section>
+<section id="pypi-workflow">
+<h2>PyPI Workflow<a class="headerlink" href="#pypi-workflow" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Use the existing PyPI project named <code class="docutils literal notranslate"><span class="pre">citylearn</span></code>.</p></li>
+<li><p>Confirm the GitHub <code class="docutils literal notranslate"><span class="pre">pypi</span></code> environment has valid <code class="docutils literal notranslate"><span class="pre">PYPI_USERNAME</span></code> and <code class="docutils literal notranslate"><span class="pre">PYPI_PASSWORD</span></code> secrets.</p></li>
+<li><p>Push the release commit and tag.</p></li>
+<li><p>Create a GitHub Release or run the <code class="docutils literal notranslate"><span class="pre">Publish</span> <span class="pre">Python</span> <span class="pre">Package</span></code> workflow manually.</p></li>
+<li><p>Workflow <code class="docutils literal notranslate"><span class="pre">.github/workflows/pypi_deploy.yml</span></code> builds <code class="docutils literal notranslate"><span class="pre">dist/*</span></code> and uploads to PyPI.</p></li>
+</ol>
+</section>
+<section id="local-build-check">
+<h2>Local Build Check<a class="headerlink" href="#local-build-check" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">.venv/bin/python -m pip install --upgrade pip build twine</span>
+<span class="go">.venv/bin/python -m build</span>
+<span class="go">.venv/bin/python -m twine check dist/*</span>
+</pre></div>
+</div>
+</section>
+<section id="release-discipline">
+<h2>Release Discipline<a class="headerlink" href="#release-discipline" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version type</p></th>
+<th class="head"><p>When to use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Patch</p></td>
+<td><p>Additive compatible features, fixes, docs and tests.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Minor</p></td>
+<td><p>New simulator capability or schema/API change.</p></td>
+</tr>
+<tr class="row-even"><td><p>Major</p></td>
+<td><p>Broad breaking changes.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Before publishing, make sure <code class="docutils literal notranslate"><span class="pre">docs/releases.md</span></code> states:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Summary</p></td>
+<td><p>What changed and why.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Release owner</p></td>
+<td><p>GitHub tag of the person responsible for the release.</p></td>
+</tr>
+<tr class="row-even"><td><p>Dataset/schema impact</p></td>
+<td><p>Migration risk for existing datasets and configs.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Compatibility</p></td>
+<td><p>Whether algorithms/wrappers need changes.</p></td>
+</tr>
+<tr class="row-even"><td><p>Validation</p></td>
+<td><p>Commands or simulations that passed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Migration notes</p></td>
+<td><p>User-facing actions required after upgrade.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="release-note-checklist-and-template">
+<h2>Release-note checklist and template<a class="headerlink" href="#release-note-checklist-and-template" title="Link to this heading"></a></h2>
+<section id="version-policy">
+<h3>Version policy<a class="headerlink" href="#version-policy" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Use when</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Patch</p></td>
+<td><p>Compatible fixes and additive features.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.4.1</span> <span class="pre">-&gt;</span> <span class="pre">0.4.2</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Minor</p></td>
+<td><p>New major capability or schema/API change.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.3.x</span> <span class="pre">-&gt;</span> <span class="pre">0.4.0</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>Major</p></td>
+<td><p>Broad breaking changes.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.x</span> <span class="pre">-&gt;</span> <span class="pre">1.0</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="release-checklist">
+<h3>Release checklist<a class="headerlink" href="#release-checklist" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">citylearn/__init__.py</span></code>.</p></li>
+<li><p>Update this file.</p></li>
+<li><p>Update README when relevant features change.</p></li>
+<li><p>Update affected reference pages when schema/action/observation/KPI contracts change.</p></li>
+<li><p>Run validation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.venv/bin/pytest</span> <span class="pre">-q</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.venv/bin/python</span> <span class="pre">scripts/audit/audit_entity_contract.py</span> <span class="pre">--strict</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.venv/bin/python</span> <span class="pre">scripts/audit/audit_physics.py</span></code></p></li>
+</ul>
+</li>
+<li><p>Run at least one representative smoke simulation.</p></li>
+<li><p>Commit and tag.</p></li>
+<li><p>Publish package when applicable.</p></li>
+</ol>
+</section>
+<section id="template">
+<h3>Template<a class="headerlink" href="#template" title="Link to this heading"></a></h3>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## vX.Y.Z - YYYY-MM-DD</span>
+
+Release owner: [<span class="nt">@calofonseca</span>](<span class="na">https://github.com/calofonseca</span>).
+
+<span class="gu">### Summary</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Added</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Changed</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Fixed</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Dataset/Schema Impact</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Compatibility</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Validation</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`...`</span>: pass
+
+<span class="gu">### Migration Notes</span>
+<span class="k">-</span><span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="developer_guide.html" class="btn btn-neutral float-left" title="Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="releases.html" class="btn btn-neutral float-right" title="Releases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

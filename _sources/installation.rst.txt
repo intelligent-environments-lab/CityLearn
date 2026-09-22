@@ -4,24 +4,68 @@
 Installation
 ============
 
-Install the latest CityLearn version from PyPi with the :code:`pip` command:
+CityLearn v3 is distributed as ``citylearn`` on PyPI and requires Python 3.9 or
+newer. Use a virtual environment to keep its dependencies separate.
 
 .. code-block:: console
 
-   pip install CityLearn
+   python -m venv .venv
 
-Alternatively, install a specific version:
+Activate it on Linux or macOS:
 
 .. code-block:: console
 
-   pip install CityLearn==2.0.0
+   source .venv/bin/activate
 
-.. warning::
-   Version ``1.8.0`` and earlier do not support temperature dynamic buildings class :py:class:`citylearn.building.DynamicsBuilding` and its descendant classes. Thus, `cooling_device` and `heating_device` control for partial load is not supported by these versions.
+On Windows PowerShell:
 
-.. warning::
-   Version ``1.1.0`` and earlier are not installable via :code:`pip`. Instead, clone earlier versions like:
+.. code-block:: powershell
 
-   .. code-block:: bash
+   .venv\Scripts\Activate.ps1
 
-        git clone -b v1.1.0 https://github.com/intelligent-environments-lab/CityLearn.git
+Install and check the package:
+
+.. code-block:: console
+
+   python -m pip install --upgrade pip
+   python -m pip install citylearn
+   python -c "from citylearn import __version__; print(__version__)"
+
+Continue with :doc:`quickstart`. Both the package and Python import name are
+``citylearn``.
+
+Optional dependencies
+*********************
+
+For Parquet datasets or exports:
+
+.. code-block:: console
+
+   python -m pip install "citylearn[parquet]"
+
+For PV autosizing from EPW weather using PySAM:
+
+.. code-block:: console
+
+   python -m pip install "citylearn[pysam]"
+
+Datasets
+********
+
+Public datasets are downloaded from the official repository and cached locally.
+The first download needs internet access. List the available names in Python:
+
+.. code-block:: python
+
+   from citylearn.data import DataSet
+   print(DataSet().get_dataset_names())
+
+For your own data, pass a local ``schema.json`` path instead of a dataset name.
+See :doc:`guides/dataset_reference` for files, units and offline use.
+
+Existing projects and development
+*********************************
+
+Record the installed version with the command above and pin that version
+in your project dependencies. Read :doc:`guides/migration` when updating a project.
+To work on CityLearn itself, follow :doc:`guides/developer_guide`.
